@@ -1,4 +1,4 @@
-// Background Canvas Engine
+// Animated Background Canvas Engine
 const canvas = document.getElementById('bg-canvas');
 if (canvas) {
   const ctx = canvas.getContext('2d');
@@ -13,19 +13,22 @@ if (canvas) {
   const particles = Array.from({ length: 40 }, () => ({
     x: Math.random() * width,
     y: Math.random() * height,
-    vx: (Math.random() - 0.5) * 1.2,
-    vy: (Math.random() - 0.5) * 1.2,
-    radius: Math.random() * 2 + 1
+    vx: (Math.random() - 0.5) * 0.8,
+    vy: (Math.random() - 0.5) * 0.8,
+    radius: Math.random() * 2 + 1,
+    hue: Math.random() * 360
   }));
 
   function animate() {
     ctx.clearRect(0, 0, width, height);
-    ctx.fillStyle = 'rgba(0, 243, 255, 0.5)';
     particles.forEach(p => {
       p.x += p.vx;
       p.y += p.vy;
+      p.hue = (p.hue + 0.5) % 360;
       if (p.x < 0 || p.x > width) p.vx *= -1;
       if (p.y < 0 || p.y > height) p.vy *= -1;
+      
+      ctx.fillStyle = `hsla(${p.hue}, 100%, 50%, 0.5)`;
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
       ctx.fill();
@@ -35,51 +38,96 @@ if (canvas) {
   animate();
 }
 
-// Toast Notification
-function showToast(msg, type = 'info') {
+// Toast System
+function showToast(msg, isError = false) {
   const container = document.getElementById('toast-container');
   if (!container) return;
   const toast = document.createElement('div');
   toast.className = 'toast';
-  toast.style.borderColor = type === 'error' ? 'var(--neon-red)' : 'var(--neon-green)';
+  toast.style.borderLeftColor = isError ? 'var(--red)' : 'var(--cyan)';
   toast.innerText = msg;
   container.appendChild(toast);
   setTimeout(() => toast.remove(), 3000);
 }
 
-// Copy Helper
-function copyToClipboard(text) {
-  navigator.clipboard.writeText(text).then(() => {
-    showToast('Copied to clipboard!', 'info');
-  }).catch(() => {
-    showToast('Failed to copy', 'error');
+// Login Handler
+const loginForm = document.getElementById('login-form');
+if (loginForm) {
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        showToast('Authorization Granted!');
+        setTimeout(() => {
+          window.location.href = data.redirect;
+        }, 500);
+      } else {
+        showToast(data.message || 'Invalid Credentials', true);
+      }
+    } catch (err) {
+      showToast('Server connection failed', true);
+    }
   });
 }
 
-// Clock Engine (IST)
-function updateClock() {
-  const clock = document.getElementById('ist-clock');
-  if (!clock) return;
-  const options = { timeZone: 'Asia/Kolkata', hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit', day: '2-digit', month: 'short', year: 'numeric' };
-  clock.innerText = `🇮🇳 IST: ${new Intl.DateTimeFormat('en-IN', options).format(new Date())}`;
-}
-setInterval(updateClock, 1000);
-updateClock();
-
-// Tab Switcher
-function showSection(id) {
-  document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
-  const target = document.getElementById(id);
-  if (target) target.style.display = 'block';
-
-  document.querySelectorAll('.sidebar-menu li').forEach(li => li.classList.remove('active'));
+// Reliable Copy Function (Clipboard API with execCommand Fallback)
+function copyText(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(() => {
+      showToast('Copied to clipboard!');
+    }).catch(() => fallbackCopy(text));
+  } else {
+    fallbackCopy(text);
+  }
 }
 
-// --- API DATA LOADER ---
+function fallbackCopy(text) {
+  const textArea = document.createElement('textarea');
+  textArea.value = text;
+  textArea.style.position = 'fixed';
+  textArea.style.left = '-9999px';
+  document.body.appendChild(textArea);
+  textArea.focus();
+  textArea.select();
+  try {
+    document.execCommand('copy');
+    showToast('Copied to clipboard!');
+  } catch (err) {
+    showToast('Copy failed', true);
+  }
+  document.body.removeChild(textArea);
+}
 
-async function refreshAllData() {
-  const isDashboard = document.getElementById('dashboard-section');
-  if (!isDashboard) return;
+// IST Clock Engine
+function updateISTClock() {
+  const timeElem = document.getElementById('ist-time-str');
+  const dateElem = document.getElementById('ist-date-str');
+  if (!timeElem || !dateElem) return;
+
+  const now = new Date();
+  const timeOpts = { timeZone: 'Asia/Kolkata', hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' };
+  const dateOpts = { timeZone: 'Asia/Kolkata', weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' };
+
+  timeElem.innerText = new Intl.DateTimeFormat('en-IN', timeOpts).format(now);
+  dateElem.innerText = new Intl.DateTimeFormat('en-IN', dateOpts).format(now);
+}
+setInterval(updateISTClock, 1000);
+updateISTClock();
+
+// Dashboard Handlers
+async function refreshDashboard() {
+  const tbody = document.getElementById('script-tbody');
+  if (!tbody) return; // Only execute if on dashboard page
 
   const authRes = await fetch('/api/check-auth');
   const auth = await authRes.json();
@@ -92,55 +140,61 @@ async function refreshAllData() {
   await loadLicenses();
 }
 
-// Load Scripts
 async function loadScripts() {
   const res = await fetch('/api/scripts');
   if (!res.ok) return;
   const scripts = await res.json();
 
-  const tbody = document.getElementById('script-table-body');
-  const selectDropdown = document.getElementById('gen-target-script');
-  
+  const tbody = document.getElementById('script-tbody');
+  const select = document.getElementById('target-script-select');
+  let totalBytes = 0;
+
   if (tbody) {
     if (scripts.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color: var(--text-muted);">No scripts saved yet. Upload a script above.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color: var(--text-muted);">No scripts saved yet. Upload a script payload below.</td></tr>`;
     } else {
       tbody.innerHTML = scripts.map(s => `
         <tr>
           <td><code>${s.id}</code></td>
-          <td style="color: var(--neon-blue); font-weight: bold;">${s.name}</td>
+          <td style="color: var(--cyan); font-weight: bold;">${s.name}</td>
           <td>${s.size}</td>
-          <td><span style="color: var(--neon-green); font-weight:bold;">● ${s.status}</span></td>
+          <td><span class="badge-active">ACTIVE</span></td>
           <td>${s.uploadDate}</td>
           <td>
-            <button class="btn-action btn-copy" onclick="copyToClipboard(\`${encodeURIComponent(s.content)}\`)">Copy Code</button>
-            <button class="btn-action btn-delete" onclick="deleteScript('${s.id}')">Delete</button>
+            <button class="btn-tb btn-tb-target">Active Target</button>
+            <button class="btn-tb btn-tb-delete" onclick="deleteScript('${s.id}')">Delete</button>
           </td>
         </tr>
       `).join('');
     }
   }
 
-  if (selectDropdown) {
-    selectDropdown.innerHTML = '<option value="">-- Select Saved Script --</option>' + 
-      scripts.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+  if (select) {
+    select.innerHTML = '<option value="">-- Select Saved Script --</option>' +
+      scripts.map(s => `<option value="${s.name}">${s.name} (Active Target)</option>`).join('');
   }
 
-  const scriptCount = document.getElementById('stat-scripts');
-  if (scriptCount) scriptCount.innerText = scripts.length;
+  document.getElementById('stat-scripts').innerText = scripts.length;
+
+  scripts.forEach(s => {
+    const kb = parseFloat(s.size);
+    if (!isNaN(kb)) totalBytes += kb;
+  });
+  document.getElementById('stat-storage-load').innerText = `${totalBytes.toFixed(2)} KB`;
 }
 
-// Delete Script
 async function deleteScript(id) {
   const res = await fetch(`/api/scripts/${id}`, { method: 'DELETE' });
   if (res.ok) {
-    showToast('Script payload deleted', 'info');
-    refreshAllData();
+    showToast('Script payload removed');
+    refreshDashboard();
+  } else {
+    showToast('Failed to delete script', true);
   }
 }
 
-// File Upload Listener
-const fileInput = document.getElementById('script-file-input');
+// File Upload Handler
+const fileInput = document.getElementById('file-uploader');
 if (fileInput) {
   fileInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
@@ -154,7 +208,7 @@ if (fileInput) {
   });
 }
 
-// Upload Script Submit
+// Upload Script Form Submit
 const uploadForm = document.getElementById('upload-script-form');
 if (uploadForm) {
   uploadForm.addEventListener('submit', async (e) => {
@@ -169,36 +223,35 @@ if (uploadForm) {
     });
 
     if (res.ok) {
-      showToast('Script saved successfully!', 'info');
+      showToast('Script payload saved!');
       uploadForm.reset();
-      refreshAllData();
+      refreshDashboard();
     } else {
-      showToast('Error saving script', 'error');
+      showToast('Failed to save script', true);
     }
   });
 }
 
-// Load Licenses
 async function loadLicenses() {
   const res = await fetch('/api/licenses');
   if (!res.ok) return;
   const licenses = await res.json();
 
-  const tbody = document.getElementById('license-table-body');
+  const tbody = document.getElementById('license-tbody');
   if (tbody) {
     if (licenses.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color: var(--text-muted);">No active access keys generated.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color: var(--text-muted);">No active VIP license keys generated.</td></tr>`;
     } else {
       tbody.innerHTML = licenses.map(l => `
         <tr>
-          <td><code style="color: var(--neon-blue);">${l.key}</code></td>
+          <td><code style="color: var(--cyan);">${l.key}</code></td>
           <td>${l.linkedScript}</td>
           <td>${l.boundHwid}</td>
-          <td><span style="color: ${l.status === 'active' ? 'var(--neon-green)' : 'var(--neon-red)'}">● ${l.status.toUpperCase()}</span></td>
+          <td><span class="${l.status === 'active' ? 'badge-active' : 'badge-expired'}">${l.status.toUpperCase()}</span></td>
           <td>${l.expiry}</td>
           <td>
-            <button class="btn-action btn-copy" onclick="copyToClipboard('${l.key}')">Copy</button>
-            <button class="btn-action btn-delete" onclick="deleteLicense('${l.id}')">Delete</button>
+            <button class="btn-tb btn-tb-copy" onclick="copyText('${l.key}')">Copy</button>
+            <button class="btn-tb btn-tb-delete" onclick="deleteLicense('${l.id}')">Delete</button>
           </td>
         </tr>
       `).join('');
@@ -207,18 +260,17 @@ async function loadLicenses() {
 
   document.getElementById('stat-licenses').innerText = licenses.length;
   document.getElementById('stat-active').innerText = licenses.filter(l => l.status === 'active').length;
-  document.getElementById('stat-expired').innerText = licenses.filter(l => l.status === 'expired').length;
 }
 
-// Generate License Submit
-const licenseForm = document.getElementById('license-form');
-if (licenseForm) {
-  licenseForm.addEventListener('submit', async (e) => {
+// Generate License Form Submit
+const genForm = document.getElementById('generate-key-form');
+if (genForm) {
+  genForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const targetScript = document.getElementById('gen-target-script').value;
-    const customKey = document.getElementById('gen-custom-key').value;
-    const durationDays = document.getElementById('gen-duration').value;
-    const maxHwid = document.getElementById('gen-max-hwid').value;
+    const targetScript = document.getElementById('target-script-select').value;
+    const customKey = document.getElementById('custom-key-input').value;
+    const durationDays = document.getElementById('duration-select').value;
+    const maxHwid = document.getElementById('max-hwid-input').value;
 
     const res = await fetch('/api/licenses', {
       method: 'POST',
@@ -227,51 +279,33 @@ if (licenseForm) {
     });
 
     if (res.ok) {
-      showToast('VIP Key Generated!', 'info');
-      licenseForm.reset();
-      refreshAllData();
+      showToast('VIP Key Generated!');
+      genForm.reset();
+      refreshDashboard();
+    } else {
+      showToast('Key generation failed', true);
     }
   });
 }
 
-// Delete License
 async function deleteLicense(id) {
   const res = await fetch(`/api/licenses/${id}`, { method: 'DELETE' });
   if (res.ok) {
-    showToast('Key deleted', 'info');
-    refreshAllData();
+    showToast('License Key Deleted');
+    refreshDashboard();
+  } else {
+    showToast('Failed to delete license key', true);
   }
 }
 
-// Delete All Licenses
-async function deleteAllLicenses() {
-  if (!confirm('Are you sure you want to delete ALL active keys?')) return;
-  const res = await fetch('/api/licenses-all', { method: 'DELETE' });
-  if (res.ok) {
-    showToast('All keys purged', 'info');
-    refreshAllData();
-  }
-}
-
-// Auth Login
-const loginForm = document.getElementById('login-form');
-if (loginForm) {
-  loginForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
-
-    const res = await fetch('/api/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password })
-    });
-
-    const data = await res.json();
-    if (data.success) {
-      window.location.href = data.redirect;
-    } else {
-      showToast(data.message, 'error');
+const deleteAllBtn = document.getElementById('delete-all-keys-btn');
+if (deleteAllBtn) {
+  deleteAllBtn.addEventListener('click', async () => {
+    if (!confirm('Are you sure you want to delete ALL active keys?')) return;
+    const res = await fetch('/api/licenses-all', { method: 'DELETE' });
+    if (res.ok) {
+      showToast('All keys deleted');
+      refreshDashboard();
     }
   });
 }
@@ -285,5 +319,4 @@ if (logoutBtn) {
   });
 }
 
-// Run Initialization
-refreshAllData();
+refreshDashboard();
