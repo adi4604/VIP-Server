@@ -1,16 +1,23 @@
-// Form Submission Handler with Redirect
+// Login Form Handler
 const loginForm = document.getElementById('login-form');
 
 if (loginForm) {
   loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
     const submitBtn = document.getElementById('submit-btn');
 
-    // Visual feedback
-    submitBtn.innerText = "⏳ VERIFYING...";
+    const username = usernameInput ? usernameInput.value.trim() : '';
+    const password = passwordInput ? passwordInput.value.trim() : '';
+
+    if (!username || !password) {
+      showToast('Please fill in all fields!', true);
+      return;
+    }
+
+    submitBtn.innerText = '⏳ VERIFYING...';
     submitBtn.disabled = true;
 
     try {
@@ -22,21 +29,22 @@ if (loginForm) {
 
       const data = await response.json();
 
-      if (data.success) {
-        showToast("⚡ ACCESS GRANTED! REDIRECTING...");
+      if (response.ok && data.success) {
+        showToast('⚡ ACCESS GRANTED! REDIRECTING...');
         
-        // Redirect to dashboard page
+        // Immediate redirect to /dashboard
         setTimeout(() => {
-          window.location.href = data.redirect || '/dashboard.html';
-        }, 600);
+          window.location.href = data.redirect || '/dashboard';
+        }, 400);
       } else {
-        showToast(data.message || 'Invalid Credentials', true);
-        submitBtn.innerText = "⚡ AUTHORIZE ACCESS ⚡";
+        showToast(data.message || 'Invalid Credentials!', true);
+        submitBtn.innerText = '⚡ AUTHORIZE ACCESS ⚡';
         submitBtn.disabled = false;
       }
     } catch (err) {
-      showToast("Server connection failed!", true);
-      submitBtn.innerText = "⚡ AUTHORIZE ACCESS ⚡";
+      console.error(err);
+      showToast('Server error or connection failed!', true);
+      submitBtn.innerText = '⚡ AUTHORIZE ACCESS ⚡';
       submitBtn.disabled = false;
     }
   });
