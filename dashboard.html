@@ -10,7 +10,6 @@
   <canvas id="bg-canvas"></canvas>
 
   <div class="dashboard-wrapper">
-    <!-- Top Header -->
     <header class="top-header glass-box glow-rgb-subtle">
       <div class="header-brand">
         <h2 class="title-rgb">💎💥 ZENITSU & EVIL DASHBOARD 🔑💥</h2>
@@ -26,7 +25,6 @@
       </div>
     </header>
 
-    <!-- Stat Counters Bar -->
     <div class="stats-bar">
       <div class="glass-box stat-tile">
         <div class="stat-label">📦 Saved Scripts</div>
@@ -42,7 +40,7 @@
       </div>
     </div>
 
-    <!-- Saved Scripts Library Table -->
+    <!-- Saved Scripts Library -->
     <div class="glass-box section-box">
       <div class="section-title">📦 Saved Scripts Library</div>
       <div class="table-scroll">
@@ -57,16 +55,13 @@
               <th>ACTIONS</th>
             </tr>
           </thead>
-          <tbody id="script-tbody">
-            <!-- Dynamic script rows rendered here -->
-          </tbody>
+          <tbody id="script-tbody"></tbody>
         </table>
       </div>
     </div>
 
-    <!-- Dual Generation & Upload Grid -->
     <div class="grid-2col">
-      <!-- Generate VIP Access Key -->
+      <!-- Generate VIP Access Key (UPDATED FOR PRE-BINDING) -->
       <div class="glass-box section-box">
         <div class="section-title">🔑 Generate VIP Access Key</div>
         <form id="generate-key-form">
@@ -78,7 +73,13 @@
           </div>
           <div class="form-group">
             <label>CUSTOM LICENSE KEY (OPTIONAL):</label>
-            <input type="text" id="custom-key-input" class="form-control" placeholder="Auto-generate if blank (e.g. ZEN-EVIL-X92A1B)">
+            <input type="text" id="custom-key-input" class="form-control" placeholder="Auto-generate if blank">
+          </div>
+          <!-- NEW PRE-BIND FIELD -->
+          <div class="form-group">
+            <label>PRE-BIND HWID (OPTIONAL):</label>
+            <input type="text" id="prebind-hwid-input" class="form-control" placeholder="e.g. FALLBACK-3B6DDF99-...">
+            <div class="sub-label" style="text-align: left; margin-top: 3px;">* If left blank, key will auto-bind to the first device that uses it.</div>
           </div>
           <div class="form-group">
             <label>DURATION:</label>
@@ -97,7 +98,7 @@
         </form>
       </div>
 
-      <!-- Upload & Save New Script -->
+      <!-- Upload Script -->
       <div class="glass-box section-box">
         <div class="section-title">📥 Upload & Save New Script</div>
         <form id="upload-script-form">
@@ -108,7 +109,7 @@
           <div class="sub-label">OR PASTE / EDIT CODE MANUALLY</div>
           <div class="form-group">
             <label>SCRIPT TITLE / NAME:</label>
-            <input type="text" id="script-title-input" class="form-control" placeholder="e.g. MY SCRIPT.LUA" required>
+            <input type="text" id="script-title-input" class="form-control" placeholder="e.g. MY_SCRIPT.LUA" required>
           </div>
           <div class="form-group">
             <label>LUA CODE CONTENTS:</label>
@@ -119,7 +120,7 @@
       </div>
     </div>
 
-    <!-- Active VIP License Keys Table -->
+    <!-- Active Keys Table -->
     <div class="glass-box section-box">
       <div class="section-header-flex">
         <div class="section-title">🔑 Active VIP License Keys</div>
@@ -137,80 +138,8 @@
               <th>ACTIONS</th>
             </tr>
           </thead>
-          <tbody id="license-tbody">
-            <!-- Dynamic license rows rendered here -->
-          </tbody>
+          <tbody id="license-tbody"></tbody>
         </table>
-      </div>
-    </div>
-
-    <!-- Diagnostics & Logs Row -->
-    <div class="grid-2col">
-      <!-- Real-Time Audit Log -->
-      <div class="glass-box section-box">
-        <div class="section-title">📜 Real-Time Audit Log</div>
-        <div class="console-box" id="audit-log-console">
-          [SYSTEM] Panel initialized and synced with server.
-        </div>
-      </div>
-
-      <!-- System Diagnostics -->
-      <div class="glass-box section-box">
-        <div class="section-title">🛡️ System Diagnostics</div>
-        <div class="diag-grid">
-          <div class="diag-card">
-            <div class="diag-lbl">API Status</div>
-            <div class="diag-val text-green">ONLINE 1200 OK!</div>
-          </div>
-          <div class="diag-card">
-            <div class="diag-lbl">Activation Endpoint</div>
-            <div class="diag-val text-cyan">/api/activate</div>
-          </div>
-          <div class="diag-card">
-            <div class="diag-lbl">Server Ping</div>
-            <div class="diag-val text-green">10 ms</div>
-          </div>
-          <div class="diag-card">
-            <div class="diag-lbl">Security Protocol</div>
-            <div class="diag-val text-red">HWID BOUND</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Live Analytics Footer -->
-    <div class="glass-box section-box">
-      <div class="section-title">📈 Live Analytics & Execution Insights</div>
-      <div class="grid-3col">
-        <div class="metric-card">
-          <div class="m-title">HWID Capacity Utilization</div>
-          <div class="bar-outer"><div class="bar-inner" style="width: 100%;"></div></div>
-          <div class="m-sub">Total HWID slots claimed across generated keys</div>
-        </div>
-        <div class="metric-card">
-          <div class="m-title">License Key Health</div>
-          <div class="bar-outer"><div class="bar-inner green-bg" style="width: 100%;"></div></div>
-          <div class="m-sub">Ratio of active operational keys to expired keys</div>
-        </div>
-        <div class="metric-card">
-          <div class="m-title">Script Storage Load</div>
-          <div class="m-val text-yellow" id="stat-storage-load">0.00 KB</div>
-          <div class="m-sub">Memory size of all loaded Lua scripts</div>
-        </div>
-      </div>
-      <div class="grid-3col text-center" style="margin-top: 15px;">
-        <div>
-          <div class="sm-lbl">⚡ Live Execution Counter</div>
-          <div class="sm-num text-cyan">1,482</div>
-        </div>
-        <div>
-          <div class="sm-lbl">🛡️ Security Blocked Attempts</div>
-          <div class="sm-num text-green">0</div>
-        </div>
-        <div>
-          <div class="sm-lbl">⚡ Avg. Verification Time</div>
-          <div class="sm-num text-cyan">14 ms</div>
-        </div>
       </div>
     </div>
   </div>
