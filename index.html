@@ -3,69 +3,62 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zenitsu & Evil - VIP Authentication</title>
+  <title>ZENITSU & EVIL - Licensing System</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body class="login-body">
-  <!-- Interactive Background Canvas -->
+<body>
+
+  <!-- Background Particle Canvas -->
   <canvas id="bg-canvas"></canvas>
 
-  <!-- Ambient RGB Glow Sphere behind the card -->
-  <div class="ambient-rgb-sphere"></div>
-
-  <!-- Main 3D Perspective Container -->
-  <div class="tilt-wrapper" id="tilt-wrapper">
-    <div class="login-card-3d" id="tilt-card">
+  <!-- Centered Login Card Container -->
+  <main class="main-container">
+    <div class="login-card">
       
-      <!-- Layer 1: Floating Badge -->
-      <div class="layer-3d layer-badge">
-        <span class="auth-badge-3d">
-          <span class="pulse-dot"></span> GAMER VIP AUTHENTICATION
+      <!-- Top Badge -->
+      <div class="badge-container">
+        <span class="vip-badge">
+          <span class="status-dot"></span> GAMER VIP AUTHENTICATION
         </span>
       </div>
 
-      <!-- Layer 2: Floating Branding -->
-      <div class="layer-3d layer-title">
-        <h2 class="title-rgb-3d">💎💥 ZENITSU & EVIL 🔑💥</h2>
-        <p class="sub-title">ADVANCED SCRIPT LICENSING SYSTEM</p>
-      </div>
+      <!-- Title Header -->
+      <header class="card-header">
+        <h1 class="glow-title">💎💥 ZENITSU & EVIL 🔑💥</h1>
+        <p class="card-subtitle">ADVANCED SCRIPT LICENSING SYSTEM</p>
+      </header>
 
-      <!-- Layer 3: Floating Interactive Form -->
-      <div class="layer-3d layer-form">
-        <form id="login-form" autocomplete="off">
-          <div class="form-group-3d">
-            <label class="field-label">ADMIN IDENTIFIER</label>
-            <div class="input-wrapper-3d">
-              <input type="text" id="username" class="login-input-3d" placeholder="Enter Username..." value="Zenitsu" required>
-            </div>
+      <!-- Authentication Form -->
+      <form id="login-form" autocomplete="off">
+        <div class="input-group">
+          <label for="username">ADMIN IDENTIFIER</label>
+          <div class="input-box">
+            <input type="text" id="username" placeholder="Zenitsu" required>
           </div>
-
-          <div class="form-group-3d">
-            <label class="field-label">SECURITY ACCESS KEY</label>
-            <div class="input-wrapper-3d">
-              <input type="password" id="password" class="login-input-3d" placeholder="••••••••" value="Mands@46" required>
-            </div>
-          </div>
-
-          <button type="submit" id="login-btn" class="btn-3d-rgb">
-            <span class="btn-text">⚡ AUTHORIZE ACCESS ⚡</span>
-            <span class="btn-glow-layer"></span>
-          </button>
-        </form>
-      </div>
-
-      <!-- Layer 4: Floating Security Footer -->
-      <div class="layer-3d layer-footer">
-        <div class="security-tag">
-          <span class="icon">🛡️</span> HWID SHIELD PROTECTED
         </div>
-        <div class="version-tag">v3.0 IST</div>
-      </div>
+
+        <div class="input-group">
+          <label for="password">SECURITY ACCESS KEY</label>
+          <div class="input-box">
+            <input type="password" id="password" placeholder="••••••••" required>
+          </div>
+        </div>
+
+        <button type="submit" id="submit-btn" class="glow-btn">
+          ⚡ AUTHORIZE ACCESS ⚡
+        </button>
+      </form>
+
+      <!-- Footer Info -->
+      <footer class="card-footer">
+        <span>PROTECTED BY HWID SHIELD</span>
+        <span class="version">v3.0 IST</span>
+      </footer>
 
     </div>
-  </div>
+  </main>
 
-  <div id="toast-container" class="toast-container"></div>
+  <div id="toast-container"></div>
   <script src="script.js"></script>
 </body>
 </html>
