@@ -4,27 +4,29 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>💎⚡ ZENITSU & EVIL DASHBOARD 🔑⚡</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="/style.css">
 </head>
 <body>
   <canvas id="bg-canvas"></canvas>
 
   <div class="dashboard-wrapper">
-    <header class="top-header glass-box glow-rgb-subtle">
+    <!-- Header Bar -->
+    <header class="top-header glass-box">
       <div class="header-brand">
         <h2 class="title-rgb">💎💥 ZENITSU & EVIL DASHBOARD 🔑💥</h2>
-        <p>LUA LOADER & HARDWARE IDENTIFIER MANAGEMENT</p>
+        <p class="sub-text">LUA LOADER & HARDWARE IDENTIFIER MANAGEMENT</p>
       </div>
       <div class="header-right">
         <div class="ist-clock-box">
-          <span class="flag">🇮🇳</span> INDIAN STANDARD TIME (IST)
+          <span>🇮🇳 INDIAN STANDARD TIME (IST)</span>
           <div id="ist-time-str">00:00:00 pm</div>
           <div id="ist-date-str">Fri, 24 Jul, 2026</div>
         </div>
-        <button id="logout-btn" class="btn-logout">LOGOUT</button>
+        <a href="/api/logout" class="btn-logout">LOGOUT</a>
       </div>
     </header>
 
+    <!-- Stats Bar -->
     <div class="stats-bar">
       <div class="glass-box stat-tile">
         <div class="stat-label">📦 Saved Scripts</div>
@@ -40,28 +42,9 @@
       </div>
     </div>
 
-    <!-- Saved Scripts Library -->
-    <div class="glass-box section-box">
-      <div class="section-title">📦 Saved Scripts Library</div>
-      <div class="table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>SCRIPT ID</th>
-              <th>SCRIPT NAME</th>
-              <th>SIZE</th>
-              <th>STATUS</th>
-              <th>UPLOAD DATE</th>
-              <th>ACTIONS</th>
-            </tr>
-          </thead>
-          <tbody id="script-tbody"></tbody>
-        </table>
-      </div>
-    </div>
-
+    <!-- Main Grid Section -->
     <div class="grid-2col">
-      <!-- Generate VIP Access Key (UPDATED FOR PRE-BINDING) -->
+      <!-- Generate Key Box -->
       <div class="glass-box section-box">
         <div class="section-title">🔑 Generate VIP Access Key</div>
         <form id="generate-key-form">
@@ -75,30 +58,24 @@
             <label>CUSTOM LICENSE KEY (OPTIONAL):</label>
             <input type="text" id="custom-key-input" class="form-control" placeholder="Auto-generate if blank">
           </div>
-          <!-- NEW PRE-BIND FIELD -->
           <div class="form-group">
             <label>PRE-BIND HWID (OPTIONAL):</label>
-            <input type="text" id="prebind-hwid-input" class="form-control" placeholder="e.g. FALLBACK-3B6DDF99-...">
-            <div class="sub-label" style="text-align: left; margin-top: 3px;">* If left blank, key will auto-bind to the first device that uses it.</div>
+            <input type="text" id="prebind-hwid-input" class="form-control" placeholder="e.g. FALLBACK-3B6DDF99...">
           </div>
           <div class="form-group">
             <label>DURATION:</label>
             <select id="duration-select" class="form-control">
               <option value="1">🔥 1 Day</option>
-              <option value="7">🔥 7 Days (1 Week)</option>
-              <option value="30" selected>🔥 30 Days (1 Month)</option>
-              <option value="365">🔥 365 Days (1 Year)</option>
+              <option value="7">🔥 7 Days</option>
+              <option value="30" selected>🔥 30 Days</option>
+              <option value="365">🔥 365 Days</option>
             </select>
           </div>
-          <div class="form-group">
-            <label>MAX HWID BINDINGS:</label>
-            <input type="number" id="max-hwid-input" class="form-control" value="1" min="1">
-          </div>
-          <button type="submit" class="btn-cyan-wide btn-rgb-glow">⚡ GENERATE LICENSE KEY</button>
+          <button type="submit" class="btn-primary">⚡ GENERATE LICENSE KEY</button>
         </form>
       </div>
 
-      <!-- Upload Script -->
+      <!-- Upload Script Box -->
       <div class="glass-box section-box">
         <div class="section-title">📥 Upload & Save New Script</div>
         <form id="upload-script-form">
@@ -106,7 +83,6 @@
             <label>📁 UPLOAD FILE (.LUA / .TXT):</label>
             <input type="file" id="file-uploader" class="form-control" accept=".lua,.txt">
           </div>
-          <div class="sub-label">OR PASTE / EDIT CODE MANUALLY</div>
           <div class="form-group">
             <label>SCRIPT TITLE / NAME:</label>
             <input type="text" id="script-title-input" class="form-control" placeholder="e.g. MY_SCRIPT.LUA" required>
@@ -115,36 +91,13 @@
             <label>LUA CODE CONTENTS:</label>
             <textarea id="script-content-input" class="form-control" rows="4" placeholder="Paste Lua Script Content..." required></textarea>
           </div>
-          <button type="submit" class="btn-cyan-wide btn-rgb-glow">💾 SAVE SCRIPT PAYLOAD</button>
+          <button type="submit" class="btn-primary">💾 SAVE SCRIPT PAYLOAD</button>
         </form>
-      </div>
-    </div>
-
-    <!-- Active Keys Table -->
-    <div class="glass-box section-box">
-      <div class="section-header-flex">
-        <div class="section-title">🔑 Active VIP License Keys</div>
-        <button class="btn-danger-sm" id="delete-all-keys-btn">⚠️ Delete All Keys</button>
-      </div>
-      <div class="table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>KEY CODE</th>
-              <th>LINKED SCRIPT</th>
-              <th>BOUND DEVICE (HWID)</th>
-              <th>STATUS</th>
-              <th>EXPIRATION</th>
-              <th>ACTIONS</th>
-            </tr>
-          </thead>
-          <tbody id="license-tbody"></tbody>
-        </table>
       </div>
     </div>
   </div>
 
-  <div id="toast-container" class="toast-container"></div>
-  <script src="script.js"></script>
+  <div id="toast-container"></div>
+  <script src="/script.js"></script>
 </body>
 </html>
