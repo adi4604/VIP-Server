@@ -3,47 +3,65 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zenitsu & Evil - Authentication</title>
+  <title>Zenitsu & Evil - VIP Authentication</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body class="login-body">
+  <!-- Interactive Background Canvas -->
   <canvas id="bg-canvas"></canvas>
 
-  <div class="login-container">
-    <div class="glass-box login-card glow-rgb">
-      <!-- Badge Header -->
-      <div class="auth-badge-wrapper">
-        <span class="auth-badge">● GAMER VIP AUTHENTICATION</span>
+  <!-- Ambient RGB Glow Sphere behind the card -->
+  <div class="ambient-rgb-sphere"></div>
+
+  <!-- Main 3D Perspective Container -->
+  <div class="tilt-wrapper" id="tilt-wrapper">
+    <div class="login-card-3d" id="tilt-card">
+      
+      <!-- Layer 1: Floating Badge -->
+      <div class="layer-3d layer-badge">
+        <span class="auth-badge-3d">
+          <span class="pulse-dot"></span> GAMER VIP AUTHENTICATION
+        </span>
       </div>
 
-      <!-- Main Title -->
-      <div class="login-header">
-        <h2 class="title-rgb">💎💥ZENITSU & EVIL🔑💥</h2>
+      <!-- Layer 2: Floating Branding -->
+      <div class="layer-3d layer-title">
+        <h2 class="title-rgb-3d">💎💥 ZENITSU & EVIL 🔑💥</h2>
         <p class="sub-title">ADVANCED SCRIPT LICENSING SYSTEM</p>
       </div>
 
-      <!-- Authentication Form -->
-      <form id="login-form">
-        <div class="form-group">
-          <label class="field-label">ADMIN IDENTIFIER</label>
-          <input type="text" id="username" class="form-control login-input" placeholder="Enter Username..." value="Zenitsu" required>
-        </div>
+      <!-- Layer 3: Floating Interactive Form -->
+      <div class="layer-3d layer-form">
+        <form id="login-form" autocomplete="off">
+          <div class="form-group-3d">
+            <label class="field-label">ADMIN IDENTIFIER</label>
+            <div class="input-wrapper-3d">
+              <input type="text" id="username" class="login-input-3d" placeholder="Enter Username..." value="Zenitsu" required>
+            </div>
+          </div>
 
-        <div class="form-group">
-          <label class="field-label">SECURITY ACCESS KEY</label>
-          <input type="password" id="password" class="form-control login-input" placeholder="••••••••" value="Mands@46" required>
-        </div>
+          <div class="form-group-3d">
+            <label class="field-label">SECURITY ACCESS KEY</label>
+            <div class="input-wrapper-3d">
+              <input type="password" id="password" class="login-input-3d" placeholder="••••••••" value="Mands@46" required>
+            </div>
+          </div>
 
-        <button type="submit" id="login-btn" class="btn-rgb-glow">
-          ⚡ AUTHORIZE ACCESS ⚡
-        </button>
-      </form>
-
-      <!-- Footer Info -->
-      <div class="login-footer">
-        <span>PROTECTED BY HWID SHIELD</span>
-        <span>v3.0 IST</span>
+          <button type="submit" id="login-btn" class="btn-3d-rgb">
+            <span class="btn-text">⚡ AUTHORIZE ACCESS ⚡</span>
+            <span class="btn-glow-layer"></span>
+          </button>
+        </form>
       </div>
+
+      <!-- Layer 4: Floating Security Footer -->
+      <div class="layer-3d layer-footer">
+        <div class="security-tag">
+          <span class="icon">🛡️</span> HWID SHIELD PROTECTED
+        </div>
+        <div class="version-tag">v3.0 IST</div>
+      </div>
+
     </div>
   </div>
 
