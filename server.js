@@ -5,22 +5,25 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 1. Parsing Middleware
+// Enable reverse proxy trust (Crucial for hosting platforms like Render / Glitch / Heroku)
+app.enable('trust proxy');
+
+// Body Parsing Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 2. Session Configuration
+// Session Storage Configuration
 app.use(session({
-  secret: 'zenitsu-secret-key-12345',
+  secret: 'zenitsu-super-secret-key-2026',
   resave: false,
   saveUninitialized: false,
   cookie: { 
-    secure: false, // Set to true if using HTTPS/Production domain
-    maxAge: 24 * 60 * 60 * 1000 
+    secure: false, // Keep false unless running on full HTTPS with SSL certificate
+    maxAge: 24 * 60 * 60 * 1000 // 24 Hours
   }
 }));
 
-// 3. Auth Guard Middleware
+// Auth Guard Middleware
 function requireAuth(req, res, next) {
   if (req.session && req.session.user) {
     return next();
@@ -28,20 +31,23 @@ function requireAuth(req, res, next) {
   return res.redirect('/');
 }
 
-// 4. API Login Endpoint
-app.post('/api/login', (req, res) => {
-  const { username, password } = req.body;
+// ------------------- ROUTES -------------------
 
-  // Check Admin Credentials
+// 1. LOGIN API ENDPOINT
+app.post('/api/login', (req, res) => {
+  const { username, password } = req.body || {};
+
+  // Check Credentials
   if (username === 'Zenitsu' && password === 'Mands@46') {
     req.session.user = { username };
-    
-    // Explicitly save the session before responding
+
+    // Force save session to disk/memory BEFORE sending success response
     return req.session.save((err) => {
       if (err) {
-        return res.status(500).json({ success: false, message: 'Session save failed' });
+        console.error('Session Save Error:', err);
+        return res.status(500).json({ success: false, message: 'Failed to create session.' });
       }
-      return res.json({ success: true, redirect: '/dashboard' });
+      return res.status(200).json({ success: true, redirect: '/dashboard' });
     });
   }
 
@@ -51,21 +57,28 @@ app.post('/api/login', (req, res) => {
   });
 });
 
-// 5. Protected Dashboard Route
+// 2. PROTECTED DASHBOARD ROUTE
 app.get('/dashboard', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'dashboard.html'));
 });
 
-// 6. Logout Route
+// 3. LOGOUT ROUTE
 app.get('/api/logout', (req, res) => {
   req.session.destroy(() => {
+    res.clearCookie('connect.sid');
     res.redirect('/');
   });
 });
 
-// 7. Static File Serving (Must be placed below custom routes)
+// 4. SERVE STATIC FILES (Placed BELOW API routes to prevent route hijacking)
 app.use(express.static(path.join(__dirname)));
 
+// 5. CATCH-ALL ROUTE (Prevents infinite pending requests)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// Start Server
 app.listen(PORT, () => {
-  console.log(`⚡ Zenitsu Panel running on http://localhost:${PORT}`);
+  console.log(`⚡ Panel active on port ${PORT}`);
 });
