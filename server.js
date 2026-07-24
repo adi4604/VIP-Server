@@ -5,18 +5,22 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// 1. Parsing Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Session Setup
+// 2. Session Configuration
 app.use(session({
-  secret: 'zenitsu-super-secret-key',
+  secret: 'zenitsu-secret-key-12345',
   resave: false,
   saveUninitialized: false,
-  cookie: { maxAge: 24 * 60 * 60 * 1000 } // 24 Hours
+  cookie: { 
+    secure: false, // Set to true if using HTTPS/Production domain
+    maxAge: 24 * 60 * 60 * 1000 
+  }
 }));
 
-// Authentication Middleware
+// 3. Auth Guard Middleware
 function requireAuth(req, res, next) {
   if (req.session && req.session.user) {
     return next();
@@ -24,40 +28,44 @@ function requireAuth(req, res, next) {
   return res.redirect('/');
 }
 
-// 1. API Login Route
+// 4. API Login Endpoint
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
 
-  // Verify credentials
+  // Check Admin Credentials
   if (username === 'Zenitsu' && password === 'Mands@46') {
     req.session.user = { username };
-    return res.json({ 
-      success: true, 
-      redirect: '/dashboard.html' 
+    
+    // Explicitly save the session before responding
+    return req.session.save((err) => {
+      if (err) {
+        return res.status(500).json({ success: false, message: 'Session save failed' });
+      }
+      return res.json({ success: true, redirect: '/dashboard' });
     });
   }
 
   return res.status(401).json({ 
     success: false, 
-    message: 'Invalid Username or Security Key!' 
+    message: 'Invalid Admin Identifier or Access Key!' 
   });
 });
 
-// 2. API Logout Route
+// 5. Protected Dashboard Route
+app.get('/dashboard', requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'dashboard.html'));
+});
+
+// 6. Logout Route
 app.get('/api/logout', (req, res) => {
   req.session.destroy(() => {
     res.redirect('/');
   });
 });
 
-// 3. Protected Dashboard Route
-app.get('/dashboard.html', requireAuth, (req, res) => {
-  res.sendFile(path.join(__dirname, 'dashboard.html'));
-});
-
-// Serve static assets (CSS, JS, index.html)
+// 7. Static File Serving (Must be placed below custom routes)
 app.use(express.static(path.join(__dirname)));
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`⚡ Zenitsu Panel running on http://localhost:${PORT}`);
 });
